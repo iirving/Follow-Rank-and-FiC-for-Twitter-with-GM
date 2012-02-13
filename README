@@ -1,0 +1,81 @@
+Script Summary: Display the Follows in Common and the Follow Rank for a given users profile page. Discover how important they are in your Twitter Social Network. Similar in aim to FaceBooks "friends in common". Note: does not yet support the "New" Twitter interface :(
+
+Version: 1.5
+
+Copyright: 2009+, Ian Irving (http://www.FalsePositives.com)
+
+Detailed BLog Post is at http://www.falsepositives.com/index.php/2010/01/28/a-greasemonkey-script-for-follow-rank-and-follows-in-common-for-twitter-user-profiles/
+
+the nominal home for this script is the GreaseMonkey sript repository at Users Scripts http://userscripts.org/
+http://userscripts.org/scripts/show/64286
+      
+a way to get more information and context about a Twitter user, because they are following you or you followed a re-twitter.
+
+Similar in aim to FaceBooks "friends in common", adjusted to reflect Twitter's asymmetrical following as opposed to FaceBooks symmetrical Friending (in Facebook we both have to agree to be “Friends”, but it Twitter it only takes one of us to follow the other, following back is optional).
+
+Tested and Works on:   Firefox 3.5.x and 3.6 ( and GreaseMonkey V0.8.2) 
+Does NOT work on:  Google Chrome. (see issues). 
+unknown:  Safari.
+
+If looking at the follow rank of (for example) http://twitter.com/ianirving this script computes and displays 2 bits of information next to the avatar picture and below the users twitter name 
+
+Follows in Common: displays the percentage of people you follow are followed by X (the person whose profile page you are looking at). It also gives you an absolute number like "(54 of 299)" which means 54 people out of the 299 people you follow are followed by X (the person whose profile page you are looking at.
+FollowRank: displays the percentage of people you follow are also following X (the person who's profile page you are looking at). It also gives you an absolute number like "(54 of 299)" which means 54 people out of the 299 people you follow are also following by X (the person who's profile page you are looking at.
+
+Note : I'm taking advantage of the tipsy jQuery plugin (http://onehackoranother.com/projects/jquery/tipsy/) to give tool tip help on hover. (see image below) Twitter uses jQuery and tipsy themselves and it is included when you open twitter.com. 
+
+
+As of version 1.3, json data is fetched via cursors, because the Legacy Social Graph API data format will be eliminated around Jan 11, 2010. Since for large numbers of followers this can take some time, for Followers > 20,000 the incremental progress and FollowRank results is shown.
+
+
+
+this only partial resolves "the Kutcher problem" (see issues)since it takes so many requests (cursors size is ~5,000, Kutcher has > 4,287,661 followers) which means 857 requests, which would take 14 minutes at 1 request per second!! BUT there is a 150 request throttle limit! So getting the FollowRank is not currently practical for twitter accounts with > 1 million followers.
+
+Now showing User Details for Follow Rank and Follows in Common : 
+ 
+Clicking on the bar for either one of these (indicated by the right hand down arrow) will fetch and display your follows who make up the score (for either Follow Rank or Follows in Common), hovering over the avatar image with give you their name, and clicking will open their profile page. User Profile information is cached for 7 days. 
+ 
+Clicking on an open bar (up arrow) will hide the User Details. (Note re opening the bar does not re fetch the data. And the data is only fetched when the bar is opened, the first time).
+
+Notes about the Twitter 150 request throttle limit and request consumption by this script: 
+
+Generally opening a user profile will require 3 requests :your following; their following and their followers. These are cached for 24 hours. It this it not the first user profile opened in 24 hours your following will already be cached.
+An exception to that is if you open someone with more than 800,000 followers (like ashton kutcher) in which case you hit the Kutcher problem mentioned elsewhere in this document.
+showing User Details for Follow Rank and Follows in Common request 1 request per user (in order to get their name, avatar picture, and link to their profile page). This information is cached for 7 days. (so if you have more than 150 Follows in common and you have not used this GM script in a week you are going to hit the limit)
+This script is not the only thing that consumes requests! Other GM scripts running on Twitter pages, and other Twitter Desktop applications may be using requests.
+if you do exceed the limit running some part of this GM script, I report the problem and tell you when the request time is reset, as per this image: 
+I have also posted additional comments on my False Positives Blog about the why, how and next.
+
+Issues:
+
+There is a problem retrieving the followers data for users with a really large amount of followers (< 800,000 for example ashton kutcher's http://twitter.com/aplusk account) needed in calculating the FollowRank. Follows in Common is still computed and displayed. This is henceforth to be called "the Kutcher problem". Version 1.3 introduced use of cursors which solves the bad document problem that previously occurred, but does not let you calculate your Kutcher FollowRank.
+If you are looking at someone with a protected profile, you with be prompted (by Twitter.com) to confirm Authentication for both their follows and followers. This requires your twitter name and password. This is not stored by this script.
+as of February 01, 2010 Google Chrome 4 now natively supports Greasemonkey user scripts. However GM_xmlhttpRequest (and possibly GM_setValue/getValue ) are not (yet) implemented.
+To Do:
+
+Add "Lists in Common" i.e. which lists are X and me both on.
+To solve "the Kutcher problem", may need to : cache incremental results of id's as I go; store the next or last cursor, so I can resume fetching ; catch that I've hit the request throttle limit; cache all this data for long than the standard period (the bigger the data set the longer to cache for?)
+trap when "Follow" or "UnFollow" are used and a) clear cache, plus b) re fetch follows and followers.
+More cow bells.
+Changelog:
+
+Feb 18 2010, Version 1.5
+
+now with REST API versioning (as per http://groups.google.com/group/twitter-api-anno... ), no real noticeable change to users but ensuring that things will continue to work.
+Jan 15 2010, Version: 1.4
+
+Now showing details (and links) on the users who are "Follows in Common" and "Follow Rank" users. details include thumb nail avatar, name and link to their profile page.
+Also improved trapping of twitter api throttle limits with better internal handling of, and reporting of , both end user and in the console, of such.
+Jan 4 2010, Version: 1.3
+
+
+To address the Twitter API Announcements that Social Graph API: Legacy data format will be eliminated 1/11/2010
+Implemented the use of cursors when fetching json data.
+In getting the list of Followers id this is used only for more than 20,000 users.
+Progress getting data via json cursors is displayed
+.
+Dec 20 2009, Version: 1.2
+
+now adding information after div.screen-name rather than appending it, as this was polluting the .action-menu item texts. a real "peanut butter in my chocolate" situation, but not in a good way :)
+several optimization to improve performance, in particular calculating $'div.screen-name') only once.
+Changes to the text of the tool tip help text
